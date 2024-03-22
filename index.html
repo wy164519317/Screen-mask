@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <style>
+    #mask {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(255，255，255，0.005);
+    }
+
+    #visible-area {
+      position: absolute;
+      width: 50vw;
+      height: 50vh;
+      left: 25vw;
+      top: 25vh;
+      box-shadow: 0 0 0 10000px rgba(0, 0, 0, 1);
+    }
+  </style>
+</head>
+
+<body>
+  <div id="mask">
+    <div id="visible-area">
+    </div>
+  </div>
+
+  <script>
+    const { ipcRenderer } = require('electron')
+    var mask = document.getElementById('mask')
+    var visibleArea = document.getElementById('visible-area')
+    var resizing = false
+    var dragStartX = 0
+    var dragStartY = 0
+    var resizeDirection = ''
+
+    mask.onmousedown = function (event) {
+      var rect = visibleArea.getBoundingClientRect()
+      if (event.clientX - rect.left < 30 || rect.right - event.clientX < 30 || event.clientY - rect.top < 30 || rect.bottom - event.clientY < 30) {
+        resizing = true
+        if (event.clientX - rect.left < 30) {
+          resizeDirection = 'left'
+        } else if (rect.right - event.clientX < 30) {
+          resizeDirection = 'right'
+        } else if (event.clientY - rect.top < 30) {
+          resizeDirection = 'top'
+        } else if (rect.bottom - event.clientY < 30) {
+          resizeDirection = 'bottom'
+        }
+        dragStartX = event.clientX
+        dragStartY = event.clientY
+      }
+    }
+
+    mask.onmousemove = function (event) {
+      var rect = visibleArea.getBoundingClientRect()
+      if (resizing) {
+        var dx = event.clientX - dragStartX
+        var dy = event.clientY - dragStartY
+        switch (resizeDirection) {
+          case 'left':
+            visibleArea.style.width = (visibleArea.offsetWidth - dx) + 'px'
+            visibleArea.style.left = (visibleArea.offsetLeft + dx) + 'px'
+            break
+          case 'right':
+            visibleArea.style.width = (visibleArea.offsetWidth + dx) + 'px'
+            break
+          case 'top':
+            visibleArea.style.height = (visibleArea.offsetHeight - dy) + 'px'
+            visibleArea.style.top = (visibleArea.offsetTop + dy) + 'px'
+            break
+          case 'bottom':
+            visibleArea.style.height = (visibleArea.offsetHeight + dy) + 'px'
+            break
+        }
+        dragStartX = event.clientX
+        dragStartY = event.clientY
+      }
+    }
+
+    mask.onmouseup = function () {
+      resizing = false
+    }
+
+    visibleArea.addEventListener('mouseenter', function () {
+      ipcRenderer.send('mouseenter')
+    })
+
+    visibleArea.addEventListener('mouseleave', function () {
+      ipcRenderer.send('mouseleave')
+    });
+  </script>
+</body>
+
+</html>
