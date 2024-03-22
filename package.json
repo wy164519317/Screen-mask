@@ -5,14 +5,27 @@
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "packwin": "electron-packager . 屏幕遮罩 --platform=win32 --arch=x64 --icon=icon.ico",
-    "packmac": "electron-packager . 屏幕遮罩 --platform=darwin --arch=x64 --icon=icon.icns"
+    "packwin": "electron-builder --win nsis",
+    "packmac": "electron-builder --mac dmg"
+  },
+  "build": {
+    "appId": "screen-mask-zz",
+    "productName": "屏幕遮罩",
+    "mac": {
+      "target": "dmg",
+      "icon": "icon.icns"
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "icon.ico"
+    }
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "dependencies": {
+  "dependencies": {},
+  "devDependencies": {
     "electron": "^29.1.5",
-    "electron-packager": "^17.1.2"
+    "electron-builder": "^24.13.3"
   }
 }
